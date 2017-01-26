@@ -30,7 +30,8 @@ package com.avocet.dion;
 import java.util.ArrayList;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.CmdLineException;
-
+import java.util.logging.Logger;
+import java.io.IOException;
 /**
  *
  * @author Kenneth P. J. Dyer <kenneth@avoceteditors.com>
@@ -43,7 +44,7 @@ public class App {
 
 	// GLOBAL VARIABLES
 	public static DionCommands options;
-
+	public static Log logger;
     /**
 	 * This method controls the main process for Dion.
 	 *
@@ -67,11 +68,19 @@ public class App {
 		}
 
 		// Print Masthead
-        masthead(options);
+    masthead(options);
 
 		// Initialize Logger
+		Log logger = new Log();	
 
-    }
+		try {
+			logger.setup();
+
+		} catch(IOException e){
+			System.out.println("Error");
+		}
+
+  }
 
 	// MASTHEAD CONTROLLER
 	/**

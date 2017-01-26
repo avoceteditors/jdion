@@ -47,16 +47,15 @@ public class Log {
 	
 	static public void setup() throws IOException {
 		
+		System.out.println("YES!!!");
 		// Set Global Logger
 		Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-		Boolean test = DionCommands.verbose;
+		Boolean test = App.options.verbose; 
 		System.out.println(test);
-
+	
 		
 	}
-
-
 
 }
 
