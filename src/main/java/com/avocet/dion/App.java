@@ -31,7 +31,8 @@ import java.util.ArrayList;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.CmdLineException;
 import java.util.logging.Logger;
-import java.io.IOException;
+import com.avocet.dion.LogHandler;
+
 /**
  *
  * @author Kenneth P. J. Dyer <kenneth@avoceteditors.com>
@@ -44,7 +45,11 @@ public class App {
 
 	// GLOBAL VARIABLES
 	public static DionCommands options;
-	public static Log logger;
+
+	// INIT LOGGER
+	private static final Logger logger = Logger.getLogger(App.class.getName());
+
+
     /**
 	 * This method controls the main process for Dion.
 	 *
@@ -68,19 +73,11 @@ public class App {
 		}
 
 		// Print Masthead
-    masthead(options);
+	    masthead(options);
 
-		// Initialize Logger
-		Log logger = new Log();	
-
-		try {
-			logger.setup();
-
-		} catch(IOException e){
-			System.out.println("Error");
-		}
-
-  }
+		
+		
+	} 
 
 	// MASTHEAD CONTROLLER
 	/**
@@ -122,9 +119,6 @@ public class App {
 			System.out.println(line);
 		}
 
-
-
-			
 	}
     
 }

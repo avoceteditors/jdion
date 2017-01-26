@@ -28,34 +28,37 @@
  */
 package com.avocet.dion;
 import java.io.IOException;
-import java.util.Date;
 import java.util.logging.FileHandler;
-import java.util.logging.Logger;
-import java.util.logging.Handler;
+import java.util.logging.Formatter;
 import java.util.logging.Level;
-import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
-/*
- * @author: Kenneth P. J. Dyer <kenneth@avoceteditors.com>
- * @version: 1.0
- * @since: 1.0
+/* 
+ * Main LogHandler
  */
-public class Log {
+public class LogHandler {
 
-	static private FileHandler fhandler;
-	//static private SimpleFormatter formatterTxt;
-	
+	static private FileHandler fileTxt;
+	static private SimpleFormatter formatterTxt;
+
 	static public void setup() throws IOException {
-		
-		System.out.println("YES!!!");
-		// Set Global Logger
+
+		// Fetch Global Logger
 		Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-		Boolean test = App.options.verbose; 
-		System.out.println(test);
-	
-		
-	}
 
+		// Set Level
+		logger.setLevel(Level.INFO);
+
+		// Set File
+		fileTxt = new FileHandler("dion.log");
+
+		// Set Formatter
+		formatterTxt = new SimpleFormatter();
+		fileTxt.setFormatter(formatterTxt);
+		logger.addHandler(fileTxt);
+
+	}
 }
 
