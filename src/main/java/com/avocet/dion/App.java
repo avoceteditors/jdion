@@ -32,7 +32,7 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.CmdLineException;
 import java.util.logging.Logger;
 import com.avocet.dion.LogHandler;
-
+import java.io.IOException;
 /**
  *
  * @author Kenneth P. J. Dyer <kenneth@avoceteditors.com>
@@ -75,8 +75,23 @@ public class App {
 		// Print Masthead
 	    masthead(options);
 
+		// Initialize Logger
+		try {
+			LogHandler.setup();
 		
+		} catch(IOException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Problem creating the log file.");
 		
+		}
+
+		logger.info("Starting Dion");
+
+		// Configure Dion
+		logger.info("Configuring Dion");
+		DionConfig config = new DionConfig();
+		config.parseConfig(options.config);
+
 	} 
 
 	// MASTHEAD CONTROLLER

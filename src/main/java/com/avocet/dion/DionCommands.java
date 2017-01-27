@@ -38,19 +38,22 @@ import org.kohsuke.args4j.Option;
  */
 public class DionCommands {
     
-    // COMMAND-LINE ARGUMENTS
-    @Option(name="--verbose", usage="Enables output verbosity")
-    public Boolean verbose = false;
+  // COMMAND-LINE ARGUMENTS
+  @Option(name="--verbose", usage="Enables output verbosity")
+  public Boolean verbose = false;
 
-    @Option(name="--version", usage="Print version information")
-    public Boolean version = false;
+  @Option(name="--version", usage="Print version information")
+  public Boolean version = false;
     
+  @Option(name="--config", usage="Sets path to configuration file")
+  public String config = ".manifest.xml";
     
-    // REPORT METHOD
-    public void report(){
-        System.out.println("Testing Dion CLI Arguments");
-        System.out.println("--verbose: " + verbose);
-        System.out.println("--version: " + version);
+  // REPORT METHOD
+  public void report(){
+      System.out.println("Testing Dion CLI Arguments");
+      System.out.println("--verbose: " + verbose);
+      System.out.println("--version: " + version);
 			
-    }
+  }
+
 }

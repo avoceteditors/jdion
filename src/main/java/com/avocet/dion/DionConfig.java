@@ -27,38 +27,83 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 package com.avocet.dion;
-import java.io.IOException;
-import java.util.logging.FileHandler;
-import java.util.logging.Formatter;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
+import java.util.ArrayList;
+import java.io.File;
+import java.lang.NullPointerException;
 
-/* 
- * Main LogHandler
+/**
+ * @author Kenneth P. J. Dyer <kenneth@avoceteditors.com>
+ * @version 1.0
+ * @since 1.0
  */
-public class LogHandler {
+public class DionConfig {
 
-	static private FileHandler fileTxt;
-	static private SimpleFormatter formatterTxt;
+	// INIT LOGGER
+	private static final Logger logger = Logger.getLogger(DionConfig.class.getName());
 
-	static public void setup() throws IOException {
+	// SEARCH DIRECTORIES
+	public static ArrayList<String> locations = new ArrayList<String>();
 
-		// Fetch Global Logger
-		Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+	/**
+	 * Parse Configuration File
+	 */ 
+	public static void parseConfig(String configpath){
 
+		// Log Operation
+		logger.finest("Searching for configuration file.");
+		
+		// Search Directories
+		initLocations();
 
-		// Set Level
-		logger.setLevel(Level.WARNING);
-
-		// Set File
-		fileTxt = new FileHandler("dion.log");
-
-		// Set Formatter
-		formatterTxt = new SimpleFormatter();
-		fileTxt.setFormatter(formatterTxt);
-		logger.addHandler(fileTxt);
-
+		// Find Config
+		String path = findFile(configpath);
+		
+		try {
+			File f = new File(path);
+		} catch(NullPointerException e){
+			logger.severe("Unable to locate configuration file");
+		}
 	}
+
+	/**
+	 * Initializes Locations Array
+	 */ 
+	private static void initLocations(){
+
+		// Add Current Directory
+		logger.finest("Adding current directory");
+		locations.add(System.getProperty("user.dir"));
+
+		// Add Home Directory
+		logger.finest("Adding home directory");
+		locations.add(System.getProperty("user.home"));
+	}
+
+	public static String findFile(String filename){
+
+		// Log Operation
+		logger.finest("Searching for: " + filename);
+		String path = "";
+
+		// Search Locations
+		for(String dir : locations){
+			File file = new File(dir, filename);
+
+			// Test that File Exists
+			if (file.exists()){
+				path = file.getAbsolutePath();
+				break;
+			} 
+		}
+		
+		// Log Finding
+		logger.finest("Found: " + path);
+
+		// Return Path
+		return path;
+		
+	}
+
 }
 
