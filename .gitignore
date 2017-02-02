@@ -1,3 +1,4 @@
 *.swp
 nb-configuration.xml
 target
+dion.log
