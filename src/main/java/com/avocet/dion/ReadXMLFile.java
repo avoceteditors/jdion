@@ -27,96 +27,69 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 package com.avocet.dion;
-import java.util.logging.Logger;
-import java.util.ArrayList;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
+import org.w3c.dom.Element;
 import java.io.File;
-import java.lang.NullPointerException;
+
+import java.io.IOException;
+import org.xml.sax.SAXException;
 
 import java.util.logging.Logger;
 
-import com.avocet.dion.ReadXMLFile;
 /**
- * @author Kenneth P. J. Dyer <kenneth@avoceteditors.com>
- * @version 1.0
+ * @author: Kenneth P. J. Dyer <kenneth@avoceteditors.com>
+ * @version: 1.0
  * @since 1.0
  */
-public class DionConfig {
+public class ReadXMLFile {
 
-	// INIT LOGGER
-	private static final Logger logger = Logger.getLogger(DionConfig.class.getName());
+	// FILENAME
+	public static String filename;
 
-	// SEARCH DIRECTORIES
-	public static ArrayList<String> locations = new ArrayList<String>();
+	// LOG HANDLER
+	private static final Logger logger = Logger.getLogger(ReadXMLFile.class.getName());
 
-	public static File f;
+	private static DocumentBuilder builder;
+	private static DocumentBuilderFactory factory; 
+	public static Document document;
 
-	public static ReadXMLFile manifest;
+	// FILEPATH READER
+	public static void parseFilePath(String filename){
+		
+		// Open File
+		logger.finest("Opening File: " + filename);
+		
+		File f = new File(filename);
+		parseFile(f);
+	}
 
-	/**
-	 * Parse Configuration File
-	 */ 
-	public static void parseConfig(String configpath){
-
+	public static void parseFile(File xmlFile){
 		// Log Operation
-		logger.finest("Searching for configuration file.");
-		
-		// Search Directories
-		initLocations();
+		logger.finest("Parsing XML: " + xmlFile.getPath());
 
-		// Find Config
-		String path = findFile(configpath);
-		
+		// Initialize XML
 		try {
-			ReadXMLFile manifest = new ReadXMLFile();
-			File f = new File(path);
-			
-			manifest.parseFilePath(path);
 
-		} catch(NullPointerException e){
-			logger.severe("Unable to parse configuration file");
-		}
-		
+			// Init Builders
+			logger.finest("Initializing XML Factory, Builder and Document");
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = factory.newDocumentBuilder(); 
+
+			// Init Document
+			Document document = builder.parse(xmlFile);
+
+		} catch(Exception e) {
+
+			// Note: Add logic to pass over XML documents that fail
+			e.printStackTrace();
+
+		} 
+		logger.finest("XML Document Initialized");
 
 	}
-
-	/**
-	 * Initializes Locations Array
-	 */ 
-	private static void initLocations(){
-
-		// Add Current Directory
-		logger.finest("Adding current directory");
-		locations.add(System.getProperty("user.dir"));
-
-		// Add Home Directory
-		logger.finest("Adding home directory");
-		locations.add(System.getProperty("user.home"));
-	}
-
-	public static String findFile(String filename){
-
-		// Log Operation
-		logger.finest("Searching for: " + filename);
-		String path = "";
-
-		// Search Locations
-		for(String dir : locations){
-			File file = new File(dir, filename);
-
-			// Test that File Exists
-			if (file.exists()){
-				path = file.getAbsolutePath();
-				break;
-			} 
-		}
-		
-		// Log Finding
-		logger.finest("Found: " + path);
-
-		// Return Path
-		return path;
-		
-	}
-
 }
 
