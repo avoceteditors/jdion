@@ -2,84 +2,105 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" 
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>com.avocet</groupId>
-    <artifactId>dion</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-    </properties>
-    <name>Dion</name>
+<modelVersion>4.0.0</modelVersion>
+<groupId>com.avocet</groupId>
+<artifactId>dion</artifactId>
+<version>1.0-SNAPSHOT</version>
+<packaging>jar</packaging>
+<properties>
+	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	<maven.compiler.source>1.8</maven.compiler.source>
+	<maven.compiler.target>1.8</maven.compiler.target>
+</properties>
+<name>Dion</name>
 
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
-    
-    <dependencies>
-        <dependency>
-            <groupId>args4j</groupId>
-            <artifactId>args4j</artifactId>
-            <version>2.33</version>
-        </dependency>
-  
-    </dependencies>
-    <build>
-        <extensions>
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-ssh</artifactId>
-                <version>2.10</version>
-            </extension>
-        </extensions>
-        
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                            <overWriteReleases>false</overWriteReleases>
-                            <overWriteSnapshots>false</overWriteSnapshots>
-                            <overWriteIfNewer>true</overWriteIfNewer>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <classpathPrefix>lib</classpathPrefix>
-                            <mainClass>com.avocet.dion.App</mainClass>
-                            <addDefaultImplementationEntries>
-                              true
-                            </addDefaultImplementationEntries>
-                            <addDefaultSpecificationEntries>
-                              true
-                            </addDefaultSpecificationEntries>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-            
-        </plugins>
-			
-    </build>
+<repositories>
+<repository>
+		<id>jitpack.io</id>
+		<url>https://jitpack.io</url>
+</repository>
+</repositories>
+
+<dependencies>
+
+<!-- Args4j -->
+<dependency>
+	<groupId>args4j</groupId>
+	<artifactId>args4j</artifactId>
+	<version>2.33</version>
+</dependency>
+
+<!-- OrientDB -->
+<dependency>
+	<groupId>com.orientechnologies</groupId>
+	<artifactId>orient-core</artifactId>
+	<version>2.2</version>
+	<type>bundle</type>
+</dependency>
+<dependency>
+	<groupId>com.orientechnologies</groupId>
+	<artifactId>orient-graphdb</artifactId>
+	<version>2.2</version>
+	<type>bundle</type>
+</dependency>
+<dependency>
+	<groupId>com.tinkerpop.blueprints</groupId>
+	<artifactId>blueprints-core</artifactId>
+	<version>2.2</version>
+	<type>bundle</type>
+</dependency>
+   
+</dependencies>
+
+
+<build>
+<extensions>
+<extension>
+		<groupId>org.apache.maven.wagon</groupId>
+		<artifactId>wagon-ssh</artifactId>
+		<version>2.10</version>
+</extension>
+</extensions>
+
+<plugins>
+<plugin>
+<groupId>org.apache.maven.plugins</groupId>
+<artifactId>maven-dependency-plugin</artifactId>
+<executions>
+
+<execution>
+<id>copy-dependencies</id>
+<phase>prepare-package</phase>
+<goals>
+	<goal>copy-dependencies</goal>
+</goals>
+<configuration>
+	<outputDirectory>${project.build.directory}/lib</outputDirectory>
+	<overWriteReleases>false</overWriteReleases>
+	<overWriteSnapshots>false</overWriteSnapshots>
+	<overWriteIfNewer>true</overWriteIfNewer>
+</configuration>
+</execution>
+</executions>
+</plugin>
+
+<plugin>
+<groupId>org.apache.maven.plugins</groupId>
+<artifactId>maven-jar-plugin</artifactId>
+<configuration>
+<archive>
+<manifest>
+	<addClasspath>true</addClasspath>
+	<classpathPrefix>lib</classpathPrefix>
+	<mainClass>com.avocet.dion.App</mainClass>
+	<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+	<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+</manifest>
+</archive>
+</configuration>
+</plugin>
+
+</plugins>
+
+</build>
 </project>
