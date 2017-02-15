@@ -27,38 +27,40 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 package com.avocet.dion;
-import java.io.IOException;
-import java.util.logging.FileHandler;
-import java.util.logging.Formatter;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
-/* 
- * Main LogHandler
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import javax.xml.namespace.NamespaceContext;
+
+import java.lang.UnsupportedOperationException;
+
+/**
+ * This class implements NamespaceContext for Dion
+ *
+ * @author: Kenneth P. J. Dyer <kenneth@avoceteditors.com>
+ * @version: 1.0
+ * @since: 1.0
  */
-public class LogHandler {
+public class DionNamespaceContext implements NamespaceContext {
 
-	static private FileHandler fileTxt;
-	static private SimpleFormatter formatterTxt;
+	// Initialize NS Map
+	private final Map<String, String> PREF_MAP = new HashMap<String, String>();
 
-	static public void setup() throws IOException {
-
-		// Fetch Global Logger
-		Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-
-
-		// Set Level
-		logger.setLevel(Level.WARNING);
-
-		// Set File
-		fileTxt = new FileHandler("dion.log");
-
-		// Set Formatter
-		formatterTxt = new SimpleFormatter();
-		fileTxt.setFormatter(formatterTxt);
-		logger.addHandler(fileTxt);
-
+	
+	public DionNamespaceContext(final Map<String, String> prefMap){
+		PREF_MAP.putAll(prefMap);
 	}
-}
 
+	public String getNamespaceURI(String prefix){
+		return PREF_MAP.get(prefix);
+	}
+
+	public String getPrefix(String uri){
+		throw new UnsupportedOperationException();
+	}
+	public Iterator getPrefixes(String uri){
+		throw new UnsupportedOperationException();
+	} 
+
+}

@@ -27,36 +27,38 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 package com.avocet.dion;
-import org.kohsuke.args4j.Option;
+import java.io.IOException;
+import java.util.logging.FileHandler;
+import java.util.logging.Formatter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
-/**
- * Command-line Argument Handler
- * 
- * @author: Kenneth P. J. Dyer <kenneth@avoceteditors.com>
- * @version: 1.0
- * @since: 1.0
+/* 
+ * Main LogHandler
  */
-public class DionCommands {
-    
+public class DionLogger {
 
-	// General Information
-	public String slogan	= "The Document Processor";
-	public String author	= "Kenneth P. J. Dyer";
-	public String email		= "kenneth@avoceteditors.com";
-	public String company	= "Avocet Editorial Consulting";
+	static private FileHandler fileTxt;
+	static private SimpleFormatter formatterTxt;
 
+	static public void setup() throws IOException {
 
-	// COMMAND-LINE ARGUMENTS
-	@Option(name="--verbose", usage="Enables output verbosity")
-	public Boolean verbose = false;
-
-	@Option(name="--version", usage="Print version information")
-	public Boolean version = false;
-    
-	@Option(name="--config", usage="Sets path to configuration file")
-	public String config = ".manifest.xml";
-    
+		// Fetch Global Logger
+		Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 
+		// Set Level
+		logger.setLevel(Level.WARNING);
 
+		// Set File
+		fileTxt = new FileHandler("dion.log");
+
+		// Set Formatter
+		formatterTxt = new SimpleFormatter();
+		fileTxt.setFormatter(formatterTxt);
+		logger.addHandler(fileTxt);
+
+	}
 }
+

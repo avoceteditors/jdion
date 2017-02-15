@@ -33,7 +33,23 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
+import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
+
 import java.io.File;
+import java.util.Iterator;
+import java.util.HashMap;
+
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.XPathConstants;
+import com.avocet.dion.DionNamespaceContext;
+
+import java.lang.UnsupportedOperationException;
+import javax.xml.xpath.XPathExpressionException;
+
+import java.util.ArrayList;
 
 import java.io.IOException;
 import org.xml.sax.SAXException;
@@ -56,6 +72,9 @@ public class ReadXMLFile {
 	private static DocumentBuilder builder;
 	private static DocumentBuilderFactory factory; 
 	public static Document document;
+	
+	private static HashMap<String, String> prefMap;
+	private static DionNamespaceContext ns;
 
 	// FILEPATH READER
 	public static void parseFilePath(String filename){
@@ -76,11 +95,12 @@ public class ReadXMLFile {
 
 			// Init Builders
 			logger.finest("Initializing XML Factory, Builder and Document");
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder builder = factory.newDocumentBuilder(); 
+			factory = DocumentBuilderFactory.newInstance();
+			factory.setNamespaceAware(true);
+			builder = factory.newDocumentBuilder(); 
 
 			// Init Document
-			Document document = builder.parse(xmlFile);
+			document = builder.parse(xmlFile);
 
 		} catch(Exception e) {
 
@@ -90,6 +110,62 @@ public class ReadXMLFile {
 		} 
 		logger.finest("XML Document Initialized");
 
+		// Configure Namespaces
+		prefMap = new HashMap<String, String>() {{
+
+			// DocBook
+			put("book", "http://docbook.org/ns/docbook");
+
+			// Bacch
+			put("bacch", "http://avoceteditors.com/2016/bacch");
+
+			// Dion
+			put("dion", "http://avoceteditors.com/2016/dion");
+
+			// XInclude
+			put("xi", "http://www.w3c.org/2001/XInclude");
+		}};
+
+		ns = new DionNamespaceContext(prefMap);
+
 	}
+
+	/**
+	 * This method executes an XPath expression against
+	 * the parsed XML document, returning a NodeList.
+	 *
+	 * @param: The String argument defines the XPath expression 
+	 *         that you want to search.
+	 */
+	public static NodeList fetchXPath(String path){
+		NodeList nodes; 
+	
+		try {
+
+			// Initialize XPath Factory
+			XPathFactory xpathFactory= XPathFactory.newInstance();
+			
+			// Init XPath
+			XPath xpath = xpathFactory.newXPath();
+
+			// Configure Namespaces
+			xpath.setNamespaceContext(ns);
+
+			XPathExpression exp = xpath.compile(path);
+
+			// Evaluate
+			nodes = (NodeList) exp.evaluate(document, XPathConstants.NODESET);
+
+			// Return NodeList
+			return nodes;
+	
+		} catch(XPathExpressionException e){
+			e.printStackTrace();
+			System.out.print("Null load");
+			return null;
+		}
+
+	}
+
 }
 

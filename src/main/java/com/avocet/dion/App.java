@@ -27,114 +27,111 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 package com.avocet.dion;
-import java.util.ArrayList;
-import org.kohsuke.args4j.CmdLineParser;
-import org.kohsuke.args4j.CmdLineException;
-import java.util.logging.Logger;
-import com.avocet.dion.LogHandler;
-import java.io.IOException;
-/**
- *
- * @author Kenneth P. J. Dyer <kenneth@avoceteditors.com>
- * @version 1.0
- * @since 1.0
- */
 
-// MAIN CLI CLASS
-public class App {
-
-	// GLOBAL VARIABLES
-	public static DionCommands options;
-
-	// INIT LOGGER
-	private static final Logger logger = Logger.getLogger(App.class.getName());
-
-
-    /**
-	 * This method controls the main process for Dion.
-	 *
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        
-        // Initialize CLI Options
-        DionCommands options = new DionCommands();
-
-		// Initialize CLI Parser
-		CmdLineParser parser = new CmdLineParser(options);
-
-		// Parse Arguments
-		try {
-			parser.parseArgument(args);
-
-		} catch(CmdLineException e){
-			System.err.println(e.getMessage());
-			parser.printUsage(System.err);
-		}
-
-		// Print Masthead
-	    masthead(options);
+	import java.util.ArrayList;
+	import org.kohsuke.args4j.CmdLineParser;
+	import org.kohsuke.args4j. CmdLineException;
+	import java.util.logging.Logger;
+	import java.io.IOException;
+	import com.avocet.dion.DionLogger;
+	import com.avocet.dion.DionCommands;
+	/**
+	 * @author Kenneth P. J. Dyer <kenneth@avoceteditors.com>
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	class App {
 
 		// Initialize Logger
-		try {
-			LogHandler.setup();
-		
-		} catch(IOException e) {
-			e.printStackTrace();
-			throw new RuntimeException("Problem creating the log file.");
-		
-		}
+		private static final Logger logger = Logger.getLogger(App.class.getName());
+
+
+		// Command-line Arguments
+		public static DionCommands options;
+
+		// Configuration
+		public static DionConfig config;
+
+		/**
+		 * This metod controls the main process for Dion.
+		 *
+		 * @param args the command-line arguments
+		 */
+		public static void main(String[] args){
+
+			// Parse Command-line Arguments
+			DionCommands options = new DionCommands();
+			CmdLineParser parser = new CmdLineParser(options);
+
+			try {
+				parser.parseArgument(args);
+			} catch(CmdLineException e){
+				System.err.println(e.getMessage());
+				parser.printUsage(System.err);
+			}	
+
+			// Run Masthead
+			masthead(options);
+
+			// Configure Log Handling
+			try {
+				DionLogger.setup();
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
 
 		logger.info("Starting Dion");
 
 		// Configure Dion
-		logger.info("Configuring Dion");
+		logger.info("Beginning Configuration");
 		DionConfig config = new DionConfig();
-		config.parseConfig(options.config);
+		config.setup(options);
+		logger.info("Configuration Complete");
+	}
 
-	} 
-
-	// MASTHEAD CONTROLLER
 	/**
-	 * This method prints the application masthead on startup.
-	 */
+   * This method prints the application masthead on startup.
+   */
 	private static void masthead(DionCommands options){
 
-		// BASE VARIABLES
-		Package pack	= Package.getPackage("com.avocet.dion");
-		String slogan	= "The Document Processor";
-		String name		= pack.getSpecificationTitle(); 
-		String version	= pack.getImplementationVersion();
+		// Fetch Build Options
+		Package pack 		=	Package.getPackage("com.avocet.dion");
+		String name 		=	pack.getSpecificationTitle();
+		String version	=	pack.getImplementationVersion();
 
+
+		// Init Mastead
 		ArrayList<String> masthead = new ArrayList<String>();
 
-		// BUILD MASTHEAD
+		// Configure Verbose Masthead
 		if (options.verbose){
-			
-			// Add Name Line
-			masthead.add(String.format("%s - %s", name, slogan));
+
+			// Add Title Line
+			masthead.add(String.format("%s - %s", name, options.slogan));
 
 			// Add Name and Contact
-			String dash = " -";
-			masthead.add(String.format("%s Kenneth P. J. Dyer <kenneth@avoceteditors.com>", dash));
-			masthead.add(String.format("%s Avocet Editorial Consulting", dash));
-			// Add Version Line 
-			masthead.add(String.format("%s Version %s", dash, version));
-		
-		} else {
-			// Add Nonverbose Masthead
+			masthead.add(String.format(" - %s <%s>", options.author, options.email));
+
+			// Company
+			masthead.add(String.format(" - %s", options.company));
+
+			// Version
+			masthead.add(String.format(" - Version %s", version));
+
+		} 
+		// Configure Quiet Masthead
+		else {
 			masthead.add(String.format("%s - version %s", name, version));
 		}
-
-		// PRINT MASTHEAD
+			
+		// Print Masthead
 		masthead.add("\n");
 		for (String line : masthead){
-		
+
 			// Print Line
 			System.out.println(line);
 		}
 
 	}
-    
-}
 
+}

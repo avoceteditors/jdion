@@ -30,87 +30,75 @@ package com.avocet.dion;
 
 import java.util.logging.Logger;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.io.File;
-import java.util.HashMap;
+import java.nio.file.Path;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.util.ArrayList;
 
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
-import org.w3c.dom.NamedNodeMap;
-
-import java.lang.NullPointerException;
-
-import com.avocet.dion.ReadXMLFile;
-import com.avocet.dion.DionProject;
+import java.io.IOException;
 
 /**
- * This Class Controls Dion Configuration Reads
+ * Class Manages Project Resource Data
  *
- * @author Kenneth P. J. Dyer <kenneth@avoceteditors.com>
- * @version 1.0
- * @since 1.0
+ * @author: Kenneth P. J. Dyer <kenneth@avoceteditors.com>
+ * @version: 1.0
+ * @since: 1.0
  */
-public class DionConfig {
+public class DionResource {
 
 	// Initialize Logger
 	private static final Logger logger = Logger.getLogger(App.class.getName());
 
-
 	// Global Variables
-	private static NodeList projects;
-	private static HashMap<String, DionProject> projectConfig;
+	private static String name;
+	private static String type;
+	private static Path path;
+	private static Boolean valid;
 
-	/**
-	 * This method controls the configuration process for Dion
-	 *
-	 * @param options the command-line arguments
-	 *
-	 */
-	public static void setup(DionCommands options){
+	private static ArrayList<Path> resource;
+
+	public DionResource(String resname, String restype, String basePath, String respath) {
+
+		// Set Variables
+		name			= resname;
+		type			= restype;
+		File basepath	= new File(basePath, respath);
+		valid			= true;	
 
 		// Log Operation
-		logger.finest("Searching for configuration file");
+		logger.info(String.format("Initializing Resource: %s", name));
 
-		// Read Configuration File
-		try {
-			ReadXMLFile manifest = new ReadXMLFile();
-			File f = new File(
-				System.getProperty("user.home"),
-				".manifest.xml");
-
-			manifest.parseFile(f);
-			logger.finest("Configuration file loaded");
-
-			// Fetch Projects
-			logger.finest("Loading Projects");
-			projects = manifest.fetchXPath("/dion:manifest/dion:projects/dion:project");
+		// Initialize Resource Contents
+		if (basepath.exists() && basepath.isDirectory()){
 			
-			int len = projects.getLength();
-			logger.finest(String.format("Projects Found: %s", len));
+			// Initialize Path
+			path = basepath.toPath();
+			confFiles();
 
-			for (int i = 0; i < len; i++){
-				NamedNodeMap node = projects.item(i).getAttributes();
-
-				// Fetch Data
-				String name		= node.getNamedItem("name").getNodeValue();
-				String path		= node.getNamedItem("path").getNodeValue();
-				String title	= node.getNamedItem("title").getNodeValue();
-			
-				// Initialize Project
-				logger.finest(String.format("Configuring Project: %s", name));
-				DionProject project = new DionProject(name, path, title);	
-
-			}
-
-
-
-		} catch(NullPointerException e){
-			logger.severe("Unable to parse configuration file");
-			e.printStackTrace();
+		} else {
+			valid = false;
+			logger.severe(String.format("Resource Disabled: %s", name));
 		}
-
+		
 	}
 
+	public static void confFiles(){
+		// Build Resource List
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(path, "*.{xml}")){
+			logger.finest("Adding Resource Files");
+			
+			for (Path entry: stream){
+				System.out.println(entry);
+				
+			}
+
+			// Look into initializing connection to OrientDB and recordign project and resource info
+
+		} catch(IOException e){
+			System.out.println(e);
+			
+		}
+	}
 
 }
-
