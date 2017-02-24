@@ -28,143 +28,161 @@
  */
 package com.avocet.dion;
 
+// Logger
 import java.util.logging.Logger;
-import java.nio.file.Path;
-import java.nio.file.FileSystems;
-import java.io.File;
-import java.util.ArrayList;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
-import org.w3c.dom.NamedNodeMap;
 
-import com.avocet.dion.ReadXMLFile;
-import com.avocet.dion.DionResource;
+// General
+import java.io.File;
+import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import org.xml.sax.InputSource;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * Project Configuration Class
+ * This class hadnles project data for Dion.
  *
  * @author: Kenneth P. J. Dyer <kenneth@avoceteditors.com>
  * @version: 1.0
  * @since: 1.0
  */
-public class DionProject {
+class DionProject {
 
 	// Initialize Logger
-	private static final Logger logger = Logger.getLogger(App.class.getName());
+	private static final Logger logger = Logger.getLogger(DionProject.class.getName());
 
 	// Global Variables
-	private static String name;
-	private static String title;
-	private static Path path;
-
-	// Update Conditions
-	private static Boolean valid;
-
-	private static ReadXMLFile project;
-
-	private static ArrayList<DionResource> resources;
+	private String name;
+	private String path;
+	private Boolean valid = true;
 
 	/**
-	 * This method initializes the class.
-	 *
-	 * @param name: The base name of the project.
-	 * @param projPath: The path to the project root.
-	 * @param title: The display title for the project.
-	 */
-	public DionProject(String projName, String projPath, String projTitle){
+     * Class Contrusctor
+     */
+	public DionProject(String projectName, String projectPath) {
+	
+		// Log Operation
+		logger.info("Initializing Project: " + projectName);
 
-
-		// Initialize Base Variables
-		name = projName;
-		title = projTitle;
-		valid = true;
-
-		logger.info(String.format("Initializing Project: %s", title));
-
-		// Configure Path
-		path = FileSystems.getDefault().getPath(projPath);
-
-		if (!path.isAbsolute()){
-			
-			// Expand Home Directory
-			if(path.startsWith("~")){
-
-				// Replace $HOME
-				projPath = String.format("%s/%s", System.getProperty("user.home"), projPath.replace("~", "")); 
-				
-				// Reinitialize Path on Absolute Value
-				path = FileSystems.getDefault().getPath(projPath);
-
-				
-			} else {
-				// Convert Relative Path to Absolute Path
-				path = path.toAbsolutePath();
-			}
-		}
-
-
-		// Find Project XML
-		File f = new File(projPath, "project.xml");
+		// Set Global Variables
+		name = projectName;
+		path = projectPath;
 		
-		
-		if (f.exists() && !f.isDirectory()){
-			
-			try {
-				readXml(f);
-			} catch(NullPointerException e){
-				valid = false;
-				e.printStackTrace();
-				logger.severe(String.format("Unable to Read Project File: %s", name));
-			}
 
-		} else {
+		try{
+			File projectXMLFile = new File(path, "project.xml");
+			parseXML(projectXMLFile);
+		} catch(Exception e){
 			valid = false;
 		}
-		
 
 	}
 
 	/**
-	 * 
-	 */
-	public static void readXml(File f){
+     * This method parses the Project XML File for relevant source data
+     */
+	private void parseXML(File projectXML){
+
 		// Log Operation
-		logger.info("Reading Project File");
+		logger.finest("Parsing project.xml");
+		try {
 
-		// Initialize Project
-		project = new ReadXMLFile();
-		project.parseFile(f);
+			SAXParserFactory factory = SAXParserFactory.newInstance();
+			SAXParser parser = factory.newSAXParser();
+			
+			// Configure Handler
+			DefaultHandler handler = new DefaultHandler(){
 
-		// Locate Resource Directories
 
-		
-		fetchResources(project);
+				private DionPrompt prompt;
+				private Boolean inPromptPS1 = false;
+				private Boolean inPromptPS2 = false;
 
-		logger.info("Project Ready");
+
+				/**
+                 * This internal method handles start elements for the SAX Parser
+                 */
+				public void startElement(String uri, String localName, String qName,
+						Attributes attr) throws SAXException {
+
+					// Resource Processing
+					if (qName == "bacch:resource"){
+						
+						// Fetch Attributes
+						String name = attr.getValue("name");
+						String path = attr.getValue("path");
+						String type = attr.getValue("type");
+
+					}
+
+					// Prompts
+					else if (qName == "bacch:prompt") {
+
+						// Fetch Attributes
+						String name = attr.getValue("name");
+						String syntax = attr.getValue("Syntax");
+
+						prompt = new DionPrompt(name, syntax);
+
+					}
+
+					else if (qName == "bacch:ps"){
+
+						// Fetch Attributes
+						String role = attr.getValue("role");
+						if (role == "PS1"){
+							inPromptPS1 = true;
+						System.out.println(role);
+						} else if (role == "PS2") {
+							inPromptPS2 = true;
+						}
+						
+
+					}
+
+					
+				}
+
+				/**
+                 * This internal method handles ending elements for SAX parser
+                 */
+				public void endElement(String uri, String localName, String qName){
+			
+					if (qName == "bacch:prompt"){
+						inPromptPS1 = false;
+						inPromptPS2 = false;
+					}
+				}
+
+				/**
+                 * This internal method handles characters within elements
+                 */
+				public void characters(char ch[], int start, int length){
+
+					if (inPromptPS1){
+						System.out.println("YES!");
+					}
+				}
+
+			};
+
+			// Configure UTF-8 Stream
+			InputStream inputStream = new FileInputStream(projectXML);
+			Reader reader = new InputStreamReader(inputStream, "UTF-8");
+
+			// Load Source
+			InputSource is = new InputSource(reader);
+			is.setEncoding("UTF-8");
+
+			parser.parse(is, handler);
+			
+		} catch(Exception e){
+			e.printStackTrace();
+		}
 	}
-
-	public static void fetchResources(ReadXMLFile project){
-		
-		// Fetch Resources from File
-		NodeList baseResources = project.fetchXPath("/bacch:project/bacch:config/bacch:resources/bacch:resource");
-
-		// Find Length
-		int len = baseResources.getLength();
-		logger.finest(String.format("Identified Resources: %s", len));
-
-
-		// Configure Resources
-		for (int i = 0; i < len; i++){
-			NamedNodeMap node = baseResources.item(i).getAttributes();
-
-			// Fetch Data
-			String name		= node.getNamedItem("name").getNodeValue();
-			String rpath	= node.getNamedItem("path").getNodeValue();
-			String type		= node.getNamedItem("type").getNodeValue();
-
-			DionResource resource = new DionResource(name, type, path.toString(), rpath);
-		}		
-
-	}
-
 }

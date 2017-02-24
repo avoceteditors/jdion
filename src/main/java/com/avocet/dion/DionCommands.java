@@ -28,35 +28,46 @@
  */
 package com.avocet.dion;
 import org.kohsuke.args4j.Option;
+import java.io.File;
 
 /**
- * Command-line Argument Handler
- * 
+ * Command-line Arguments Handler
+ *
  * @author: Kenneth P. J. Dyer <kenneth@avoceteditors.com>
  * @version: 1.0
  * @since: 1.0
  */
 public class DionCommands {
-    
 
-	// General Information
-	public String slogan	= "The Document Processor";
-	public String author	= "Kenneth P. J. Dyer";
-	public String email		= "kenneth@avoceteditors.com";
-	public String company	= "Avocet Editorial Consulting";
+	// Generic Information
+	public static final String name = "Dion";
+	public static final String author = "Kenneth P. J. Dyer";
+	public static final String email = "kenneth@avoceteditors.com";
+	public static final String company = "Avocet Editorial Consulting";
+	public static final String versionName = "1.0";
+	public static final String slogan = "The Document Processor for Writers and Technical Writers";
 
-
-	// COMMAND-LINE ARGUMENTS
+	// Command-line Arguments
 	@Option(name="--verbose", usage="Enables output verbosity")
-	public Boolean verbose = false;
+	public static Boolean verbose = false;
 
-	@Option(name="--version", usage="Print version information")
-	public Boolean version = false;
-    
-	@Option(name="--config", usage="Sets path to configuration file")
-	public String config = ".manifest.xml";
-    
+	@Option(name="--version", usage="Prints version information")
+	public static Boolean version = false;
 
+	@Option(name="--config", usage="Sets the path to te configuration file")
+	public static String config = String.format(
+				"%s%s.dion%smanifest.xml", 
+				System.getProperty("user.home"),
+				File.separator, File.separator);
+
+	@Option(name="--init", usage="Configures the Database Schema")
+	public static Boolean initdb = false;
+
+	@Option(name="--user", usage="Defines database user")
+	public static String user = "admin";
+
+	@Option(name="--password", usage="Defines database user apssword")
+	public static String password = "admin";
 
 
 }

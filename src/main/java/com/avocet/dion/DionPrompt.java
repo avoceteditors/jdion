@@ -27,38 +27,30 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 package com.avocet.dion;
-import java.io.IOException;
-import java.util.logging.FileHandler;
-import java.util.logging.Formatter;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
-/* 
- * Main LogHandler
+/**
+ * Class configures prompts for display
  */
-public class DionLogger {
+class DionPrompt {
 
-	static private FileHandler fileTxt;
-	static private SimpleFormatter formatterTxt;
-
-	static public void setup() throws IOException {
-
-		// Fetch Global Logger
-		Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+	// Init Logger
+	private static final Logger logger = Logger.getLogger(DionPrompt.class.getName());
 
 
-		// Set Level
-		logger.setLevel(Level.WARNING);
+	// Global Variables
+	private String name;
+	private String syntax;
+	private String ps1;
+	private String ps2;
 
-		// Set File
-		fileTxt = new FileHandler("dion.log");
-
-		// Set Formatter
-		formatterTxt = new SimpleFormatter();
-		fileTxt.setFormatter(formatterTxt);
-		logger.addHandler(fileTxt);
-
+	/**
+     * Constructor for Prompt Class
+     */
+	public DionPrompt(String setName, String setSyntax){
+		name = setName;
+		syntax = setSyntax;
 	}
-}
 
+
+}

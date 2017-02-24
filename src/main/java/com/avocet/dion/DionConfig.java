@@ -28,89 +28,149 @@
  */
 package com.avocet.dion;
 
-import java.util.logging.Logger;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.io.File;
+import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import org.xml.sax.InputSource;
+import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
-import org.w3c.dom.NamedNodeMap;
+// Logger
+import java.util.logging.Logger;
 
-import java.lang.NullPointerException;
+// XML
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
-import com.avocet.dion.ReadXMLFile;
+
+// Map
+import java.util.HashMap;
+
+// Avocet
 import com.avocet.dion.DionProject;
+import com.avocet.dion.DionXMLHandler;
+
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 
 /**
- * This Class Controls Dion Configuration Reads
+ * This class handles configuration for Dion
  *
- * @author Kenneth P. J. Dyer <kenneth@avoceteditors.com>
- * @version 1.0
- * @since 1.0
+ * @author: Kenneth P. J. Dyer <kenneth@avoceteditors.com>
+ * @version: 1.0
+ * @since: 1.0
  */
-public class DionConfig {
+class DionConfig {
 
 	// Initialize Logger
-	private static final Logger logger = Logger.getLogger(App.class.getName());
+	private static final Logger logger = Logger.getLogger(DionConfig.class.getName());
 
-
-	// Global Variables
-	private static NodeList projects;
-	private static HashMap<String, DionProject> projectConfig;
+	// Initialize Global Variables
+	private File configFile;
+	private HashMap<String, DionProject> projects = new HashMap<String, DionProject>();
+	private HashMap<String, String> dbConfig = new HashMap<String, String>();
+	private DionXMLHandler manifest;
+	private ArrayList<HashMap<String, String>> projectList;
 
 	/**
-	 * This method controls the configuration process for Dion
-	 *
-	 * @param options the command-line arguments
-	 *
-	 */
-	public static void setup(DionCommands options){
+     * Constructor for Configuration Class
+     *
+     * @param options: DionCommands Instance
+     */
+	public DionConfig(String path) {
 
 		// Log Operation
-		logger.finest("Searching for configuration file");
+		logger.info("Parsing Configuration File");
 
-		// Read Configuration File
+
 		try {
-			ReadXMLFile manifest = new ReadXMLFile();
-			File f = new File(
-				System.getProperty("user.home"),
-				".manifest.xml");
 
-			manifest.parseFile(f);
-			logger.finest("Configuration file loaded");
+			// Initialize Manifest
+			manifest = new DionXMLHandler(path);	
 
-			// Fetch Projects
-			logger.finest("Loading Projects");
-			projects = manifest.fetchXPath("/dion:manifest/dion:projects/dion:project");
-			
-			int len = projects.getLength();
-			logger.finest(String.format("Projects Found: %s", len));
 
-			for (int i = 0; i < len; i++){
-				NamedNodeMap node = projects.item(i).getAttributes();
 
-				// Fetch Data
-				String name		= node.getNamedItem("name").getNodeValue();
-				String path		= node.getNamedItem("path").getNodeValue();
-				String title	= node.getNamedItem("title").getNodeValue();
-			
-				// Initialize Project
-				logger.finest(String.format("Configuring Project: %s", name));
-				DionProject project = new DionProject(name, path, title);	
+			// Fetch Project Data
+			ArrayList<String> keys = new ArrayList<String>();
+			keys.add("name");
+			keys.add("path");
+
+			String xpathExpression = "/dion:manifest/dion:projects/dion:project";
+		
+			projectList = manifest.fetchData(xpathExpression, keys);
+
+			// Correct Paths for user.home 
+			for (HashMap<String, String> project : projectList){
+				String projectPath = project.get("path");
+				
+				// Test Opening Character
+				char firstChar = projectPath.charAt(0);	
+
+				if (firstChar == '~'){
+					String basePath = projectPath.split("~")[1];
+					project.put("path", System.getProperty("user.home") + basePath); 
+					
+				}
 
 			}
 
+			// Fetch Configuration
+			keys = new ArrayList<String>();
+			keys.add("name");
+			keys.add("user");
+			keys.add("passwd");
 
+			xpathExpression = "/dion:manifest/dion:config/dion:database";
+			dbConfig = manifest.fetchData(xpathExpression, keys).get(0);
+						
 
-		} catch(NullPointerException e){
-			logger.severe("Unable to parse configuration file");
+		} catch(IOException e){
+			
+			// Report Error
 			e.printStackTrace();
+			logger.severe("Unable to find manifest.xml");
+
+		} catch(ParserConfigurationException e){
+
+			// Report Error
+			e.printStackTrace();
+			logger.severe("Error Configuring Parser for manifest.xml");
+
+		} catch(SAXException e){
+		
+			// Report Error
+			e.printStackTrace();
+			logger.severe("Error Parsing manifest.xml");
+
+		} catch(XPathExpressionException e){
+
+			// Report Error
+			e.printStackTrace();
+			logger.severe("Error Retrieving Data from manifest.xml");
 		}
+
+	}
+
+	/**
+     * This method returns database config values
+     */
+	public String getDbConfig(String key){
+		return dbConfig.get(key);
+	}
+	
+	/**
+     * This method initializes DionProjects
+     */
+	public void loadProjects(){
+
 
 	}
 
 
 }
-
