@@ -36,6 +36,8 @@
 
 ;; Configure Command-line Options
 (def cli-options
+  "Defines and parses command-line arguments."
+  {:added "0.1.0"}
 
   [
    ;; Verbose Output
@@ -48,8 +50,14 @@
    ["-h" "--help"] ])
 
 ;; Print Usage Information
-(defn usage [options-summary]
-	(->> ["Dion description."
+(defn usage 
+  "Takes one argument, which provides a summary of the available command-line
+  arguments with their relevant documentation then generates the usage message
+  to print in the event of CLI errors."
+  {:added "0.1.0"}
+  [options-summary] 
+
+  (->> ["Dion description."
 		"Usage: dion [options] action"
 		"Options:"
 		options-summary
@@ -57,21 +65,39 @@
         "- start"
         "- stop"
         "- status"
-	] (string/join \newline)))
+        ] (string/join \newline)))
 
-;; Error Message
-(defn error-msg [errors]
-	(str "The following errors occured while parsing your command:\n\n"
-		(string/join \newline errors)))
+;; CLI Error Message
+(defn error-msg 
+  "In the event that the application encounters an error while parsing arguments
+  from the command-line, this message logs the errors to standard output.  It takes
+  a single argumetn, an array of encountered errors."
+  {:added "0.1.0"}
+  [errors]
+
+  (str "The following errors occured while parsing your command:\n\n"
+       (string/join \newline errors)))
 
 ;; Exit Process
-(defn exit [status msg]
-	(println msg)
-	(System/exit status))
+(defn exit 
+    "Takes two arguments: exit-code and msg.  The exit-code is an integer between 
+    0 and 2.  If the exit code is 0, it runs org.clojure.tools.logging/info to report
+    the message.  Otherwise it runs org.clojure.tools.logging/error, then exits." 
+    {:added "0.1.0"}
+    [exit-code msg] 
+
+    ;; Log Exit based on exit-cide 
+    (if (exit-code > 0)
+      (log/error msg)
+      (log/info msg))
+
+    ;; Exit
+	(System/exit exit-code))
 
 ;; Main Process
 (defn -main
-	"Main Process"
+	"Takes arguments from the command-line and initializes the main processes."
+    {:added "0.1.0"}
 	[& args]
 
     (log/info "Arguments:" args) ; remove later
