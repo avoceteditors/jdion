@@ -2,3 +2,5 @@
 nb-configuration.xml
 target
 dion.log
+.lein*
+pom.xml
