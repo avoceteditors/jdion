@@ -26,9 +26,12 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from os.path import exists, isfile
+import configparser
+from re import match
+
+
 from . import core
 from . import databases
-import configparser
 
 def set_var(conf, key, default):
     try:
@@ -61,6 +64,8 @@ def configure(args):
     # Retrieve Paths from Arguments
     if args.file:
         source = core.validate_file("Invalid File Option", args.file)
+    else:
+        source = None
     configpath = core.validate_file("Invalid Configuration File Option", args.config)
 
     # Fetch Global Configuration File
@@ -94,7 +99,12 @@ def dry_run(args):
     except:
         core.exit(1, "Invalid Database Configuration: %s" % conf['system']['local_database'])
     
-    # parse rst to pseudo-xml next 
+    # Parse Source Files
+    if config['source_path'] is not None:
+        if match('^.*?\.rst', config['source_path']):
+            # Generate pseudo-xml
+            pass
+            
 
     return config
 
