@@ -1,14 +1,27 @@
 
-VERSION = 0.1.0
-TARGET = target/uberjar
-JAR = $(TARGET)/dion-$(VERSION)-SNAPSHOT.jar
+CSRC = $(wildcard server/*.c)
+COUT := $(patsubst server/%.c, %.o, $(wildcard server/*.c))
 
-all: run
+CC=clang
 
-build: $(JAR)
+all: python
 
-$(JAR): src/dion/*.clj
-	lein uberjar
+dion-server: $(COUT)
+	$(CC) -o $@ $^
 
-run: $(JAR) 
-	./script/dion start	
+$(COUT): $(CSRC)
+	$(CC) -c $^
+
+clean: 
+	rm $(COUT)
+
+clean-srv:
+	rm dion-server
+
+python: py3
+
+py3:
+	python3 setup.py install --user
+
+docker:
+	sudo docker run -p 8529:8529 -e ARANGO_ROOT_PASSWORD=openSesame arangodb/arangodb:3.2.0

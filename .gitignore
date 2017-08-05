@@ -4,3 +4,6 @@ target
 dion.log
 .lein*
 pom.xml
+dion-server
+*.o
+dion.egg-info/
