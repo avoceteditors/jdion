@@ -1,2 +1,2 @@
 # dion
-Document processor written n Java.
+Document processor written in C, Python, Clojure and ClojureScript. 
