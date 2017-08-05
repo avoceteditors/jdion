@@ -7,3 +7,7 @@ pom.xml
 dion-server
 *.o
 dion.egg-info/
+build
+src-old
+dist
+__pycache__
