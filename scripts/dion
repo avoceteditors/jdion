@@ -37,7 +37,9 @@ parser = argparse.ArgumentParser()
 
 # Options
 parser.add_argument("-f", "--file")
-parser.add_argument("-c", "--config", default="~/.dion/dion.conf")
+parser.add_argument("-c", "--config", default="~/.dion/dion.json")
+parser.add_argument('-u', '--user', default=None)
+parser.add_argument('-p', '--password', default=None)
 parser.add_argument("--debug", action="store_true")
 parser.add_argument("-v", "--verbose", action="store_true")
 parser.add_argument("-V", "--version", action="store_true")

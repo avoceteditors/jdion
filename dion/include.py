@@ -24,24 +24,50 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-import pyArango.connection as pyacon
-from . import core
-from .arango import ArangoDatabase 
+from docutils import nodes
+from docutils.parsers.rst import Directive, directives
 
-######################## INITIALIZE ARANGODB ################################
-def init(kind, name, host, port, user, passwd, root, root_passwd):
-    """ Initializes and returns database interface """
+# Include Node Class
+class include(nodes.Element):
+    pass
 
-    # Determine Database Type
-    if kind.lower() == 'arangodb':
-        dbclass = ArangoDatabase
-    elif kind.lower() == 'orientdb':
-        core.exit(1, "Dion currently does not support OrientDBi"
-                    " as a local database, support is coming soon")
-    else:
-        core.exit(1, "Invalid Database Type: %s" % kind)
+# Include Directive Class
+class IncludeDirective(Directive):
 
-    db = dbclass(name, host, port, user, passwd, root, root_passwd)
-    
+    required_arguments = 0
+    optional_arguments = 0
+    has_content = False 
+    option_spec = {
+        "href": directives.unchanged,
+        "resource": directives.unchanged}
+
+    # Run Directive
+    def run(self):
+
+        # Check That Node is Valid
+        if 'href' not in self.options:
+            return []
+
+        # Initialize Node
+        node = include()
+
+        # Update Node
+        update ={}
+        for name in ['href', 'resource']:
+            if name in self.options:
+                value = self.options[name]
+            else:
+                value = 'none'
+            update[name] = value
+
+        node.update_all_atts(update)
+
+        # Return Valid Node
+        return [node]
 
 
+    def add_attr(self, name, value):
+
+        if name in self.options:
+            value = self.options[name]
+        self.node.update_all_atts({name: value})

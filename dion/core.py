@@ -42,6 +42,9 @@ def start():
     global timer_start
     timer_start = timer()
 
+# Set Legitimate Commands
+legit_commands = ['dry-run', 'update']
+
 ######################### EXIT PROCESS ############################
 def exit(code = 0, msg = "Closing Dion"):
     """ Initiates the exit process """
@@ -81,10 +84,6 @@ def validate_file(error, path):
 
 
 ######################### RUN PROCESS #############################
-
-# Set Legitimate Commands
-legit_commands = ['dry-run']
-
 # Run Process
 def run(args):
     """ Runs the main Dion process """

@@ -26,36 +26,20 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from os.path import exists, isfile
-import configparser
+import json
 from re import match
 
 
 from . import core
 from . import databases
+from .rst import parse_rst
 
 def set_var(conf, key, default):
     try:
         return conf[key]
     except:
         return default
-
-############################ DB CONFIGURE ############################  
-def db_configure(conf):
-    db_type = conf['db_type'].lower()
-
-    db_name = set_var(conf, 'db_name', 'dion')
-    db_user = set_var(conf, 'db_user', 'dion')
-    db_pass = set_var(conf, 'db_pass', 'dion')
-    db_host = set_var(conf, 'db_host', 'localhost')
-    db_port = set_var(conf, 'db_port', None)
-
-    if db_type not in ['arangodb']:
-        exit(1, "Invalid Database Type: %s is not supported" % db_type)
-
-    # Init Database Class
-    init = getattr(databases, 'init_%s' % db_type)
-    return init(db_name, db_user, db_pass, db_host, db_port)
-            
+ 
 
 
 ############################ CONFIGURE ############################  
@@ -66,20 +50,19 @@ def configure(args):
         source = core.validate_file("Invalid File Option", args.file)
     else:
         source = None
+
     configpath = core.validate_file("Invalid Configuration File Option", args.config)
 
     # Fetch Global Configuration File
-    config = configparser.ConfigParser()
     try:
-        config.read(configpath)
+        with open(configpath, 'r') as f:
+            config = json.load(f)
     except:
         core.exit(1, "Invalid Configuration File")
+    
+    config['source_path'] = source
 
-    return {
-        'source_path': source,
-        'conf_path': configpath,
-        'conf': config
-        }
+    return config
 
 
 ############################ DRY RUN COMMAND ################################
@@ -91,20 +74,57 @@ def dry_run(args):
     # Configure Dion 
     config = configure(args)
 
-    # Configure Database Interfaces
-    conf = config['conf']
-    try:
-        db_local = conf['system']['local_database']
-        config['database'] = db_configure(conf[db_local])
-    except:
-        core.exit(1, "Invalid Database Configuration: %s" % conf['system']['local_database'])
-    
     # Parse Source Files
     if config['source_path'] is not None:
-        if match('^.*?\.rst', config['source_path']):
+        source = config['source_path']
+        if match('^.*?\.rst', source): 
+
             # Generate pseudo-xml
-            pass
-            
+            xml = parse_rst(source)
 
-    return config
+            # Print Pseudo-XML Data
+            print('\nPseudo-XML Data:\n')
+            print(xml)
+            print('\n')
 
+
+############################ UPDATE COMMAND ################################
+def update(args):
+    """ Command iterates over each project to update to the database"""
+    
+    # Fetch Config
+    config = configure(args) 
+
+    # Configure Database Interfaces
+    try:
+        db_local = config['system']['local_database']
+        db_conf = config['databases'][db_local]
+
+        # Retrieve Database Configuration
+        db_type = db_conf['type']
+        db_user = db_conf['user']
+        db_passwd = db_conf['password']
+        db_name = db_conf['name']
+        root_user = args.user
+        root_passwd = args.password
+        host = db_conf['host']
+        port = db_conf['port']
+
+        # Initialize Database Fetch Function
+        if db_type.lower() in ['arangodb', 'orientdb']:
+            config['databases'][db_local]['db']  = databases.init(db_type, db_name, 
+                host, port, db_user, db_passwd, root_user, root_passwd)
+        else:
+            core.exit(1, "Invalid Local Database Type: %s" % db_type)
+
+    except:
+        core.exit(1, "Invalid Database Configuration")
+
+    # Iterate Over Projects
+    if 'projects' in config:
+        pass
+
+    else:
+        core.exit(1, "No projects found in %s" % args.config)
+
+    

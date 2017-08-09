@@ -24,24 +24,64 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-import pyArango.connection as pyacon
-from . import core
-from .arango import ArangoDatabase 
+from docutils import nodes
+from docutils.parsers.rst import Directive, directives
+import datetime
 
-######################## INITIALIZE ARANGODB ################################
-def init(kind, name, host, port, user, passwd, root, root_passwd):
-    """ Initializes and returns database interface """
+from logging import getLogger
+logger = getLogger()
 
-    # Determine Database Type
-    if kind.lower() == 'arangodb':
-        dbclass = ArangoDatabase
-    elif kind.lower() == 'orientdb':
-        core.exit(1, "Dion currently does not support OrientDBi"
-                    " as a local database, support is coming soon")
-    else:
-        core.exit(1, "Invalid Database Type: %s" % kind)
+# Metadata Node
+class metadata(nodes.Element):
+    pass
 
-    db = dbclass(name, host, port, user, passwd, root, root_passwd)
-    
+# Metadata Class
+class MetadataDirective(Directive):
+
+    required_arguments = 0
+    optional_arguments = 0
+    has_content = True
+    option_spec = {
+        "title": directives.unchanged, 
+        "format": directives.unchanged,
+        "date": directives.unchanged,
+        "abstract": directives.unchanged}
+
+    # Run Directive
+    def run(self):
+
+        # Initialize Node
+        self.node = metadata() 
+
+        # Add Attributes
+        attrs = [
+            ('title', 'none'),
+            ('format', 'none'),
+            ('abstract', '')]
+
+        for (name, default) in attrs:
+            self.add_option(name, default)
+
+        # Add Date Attribute
+        self.add_date_option('date', 'none')
+
+        return [self.node]
+
+    # Add Option to Node
+    def add_option(self, name, value):
+
+        if name in self.options:
+            value = self.options[name]
+
+        self.node.update_all_atts({name: value})
+
+    # Add Date Option to Node
+    def add_date_option(self, date, value):
+        try:
+            value = datetime.datetime.strptime(self.options['date'], '%Y-%m-%d %h:%M %Z')
+        except:
+            pass
+
+        self.node.update_all_atts({date: value})
 
 

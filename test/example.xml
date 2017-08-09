@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dion:document id="example" version="5.0"
+		xmlns="http://docbook.org/ns/docbook"
+		xmlns:xi="http://www.w3.org/2001/XInclude"
+		xmlns:dion="http://avoceteditors.com/xml/dion">
+<info>
+<date>2017-08-06 04:49 EST</date>
+</info>
+
+<section id="example-master">
+<info>
+	<title>Example</title>
+	<abstract>
+		<para>
+		Text being prepared ot test out XML processing for Dion.
+		</para>
+	</abstract>
+</info>
+
+<para>
+This is the opening text for a top level section.  The next section is <link xlink:href="example-section"/>
+</para>
+
+<section id="example-section">
+<info>
+	<title dion:format="code">Section Title</title>
+	<abstract>
+		<para>
+		Summary text for link.
+		</para>
+	</abstract>
+</info>
+
+<para>
+This is a section within the main chapter section.  It is meant to test links.
+</para>
+
+<programlisting>
+<userinput language="mysql" dion:prompt="mysql">
+SELECT * FROM table_name
+WHERE id = '14';
+</userinput>
+<computeroutput>
++---------------+-------+
+| Variable_name | Value |
++---------------+-------+
+| wsrep_on      | TRUE  |
+| gcache.size   | 14239 |
++---------------+-------+
+</computeroutput>
+</programlisting>
+</section>
+
+<section id="example-lists">
+<info>
+	<title>List Section</title>
+	<abstract>
+	<para>
+		This section is meant to test lists.	
+	</para>
+	</abstract>
+</info>
+
+<para>
+Itemized list:
+</para>
+
+<itemizedlist>
+<listitem>
+<para>
+Test 1
+</para>
+</listitem>
+<listitem>
+<para>
+Test 2
+</para>
+</listitem>
+</itemizedlist>
+
+
+<para>
+Ordered List
+</para>
+
+<orderedlist>
+<listitem>
+<para>
+Test 1
+</para>
+
+<para>
+Follow up paragraph
+</para>
+</listitem>
+<listitem>
+<para>
+Test 2
+</para>
+</listitem>
+</orderedlist>
+</section>
+
+</section>
+</dion:document>

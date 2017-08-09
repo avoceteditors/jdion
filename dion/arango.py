@@ -25,41 +25,89 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from pyArango.connection import *
+from arango import ArangoClient
+
 from logging import getLogger
 logger = getLogger()
 
 class ArangoDatabase():
 
-    def __init__(self, name, user, passwd, host, port):
+    # Initialize Database Class
+    def __init__(self, name, host, port, user, passwd, root, root_passwd):
+        """ Initializes the Database Class for ArangoDB"""
 
-        # Init Variables
+        # Configure Database Connection 
         self.name = name
-        self.user = user
-        self.passwd = passwd
         self.host = host
         self.port = port
 
-        print(user)
-        print(passwd)
-        # Init Connection
-        self.conn = Connection(username=user, password=passwd)
+        self.user = user
+        self.passwd = passwd
+
+        if root is not None:
+            self.root = root 
+            self.root_passwd = root_passwd
+        else:
+            self.root = user
+            self.root_passwd = passwd
+
+        # Connect and Configure Database
+        try:
+
+            # Initialize Database Connection
+            self.client = ArangoClient(
+                    protocol = 'http',
+                    host = self.host,
+                    port = self.port,
+                    username = self.root,
+                    password = self.root_passwd,
+                    enable_logging = True)
+
+            # Open Database and Configure the Schema
+            self.open_database()
+            self.configure_schema()
+        except as err:
+            logger.warning("Unable to Connect to ArangoDB")
+            print(err)
+        
+
+    # Open Database
+    def open_database(self):
+        """ Initializes the Database Object by either creating the database
+        or by opening an existing database with the given name"""
 
         # Create or Open Database 
-        try:
-            self.db = self.conn.createDatabase(name=self.name)
-            logger.debug("Creating Database: %s" % self.name)
-        except:
-            logger.debug("Opening Database: %s" % self.name)
-            self.db = self.conn.__getitem__(self.name)
+        if self.name in self.client.databases():
+            self.db = self.client.database(
+                    name = self.name,
+                    username = self.user, 
+                    password = self.passwd)
+        else:
+            self.db = self.client.create_database(
+                    username = self.root_user,
+                    password = self.root_password,
+                    users = {
+                        "username": self.user,
+                        "password": self.passwd,
+                        "active": True,
+                        "extra": {}})
+
+    # Configure Schema
+    def configure_schema(self):
+        """ Initializes the database schema and sets the base
+        collections on the database by either creating them
+        or initializing existing collections on the class."""
 
         # Create or Load Collections
-        collections = ['projects', 'resources', 'files']
+        collections = ['projects', 'resources', 'files', 'sections']
+        collection_list = self.db.collections()
         for i in collections:
-            if self.db.hasCollection(name=i):
-                setattr(self, '%s_collection' % i, self.db[i])
+            if i in collection_list: 
+                setattr(self, '%s_collection' % i, self.db.collection(i))
             else:
-                setattr(self, '%s_collection' % i, self.db.createCollection(name=i))
+                setattr(self, '%s_collection' % i, 
+                        self.db.create_collection(
+                            name = i))
             
 
 

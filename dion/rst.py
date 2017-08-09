@@ -24,24 +24,44 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-import pyArango.connection as pyacon
-from . import core
-from .arango import ArangoDatabase 
 
-######################## INITIALIZE ARANGODB ################################
-def init(kind, name, host, port, user, passwd, root, root_passwd):
-    """ Initializes and returns database interface """
+import docutils.core
+import docutils.parsers.rst
+import io
 
-    # Determine Database Type
-    if kind.lower() == 'arangodb':
-        dbclass = ArangoDatabase
-    elif kind.lower() == 'orientdb':
-        core.exit(1, "Dion currently does not support OrientDBi"
-                    " as a local database, support is coming soon")
-    else:
-        core.exit(1, "Invalid Database Type: %s" % kind)
+from docutils.parsers.rst import directives, roles
+from .metadata import MetadataDirective
+from .include import IncludeDirective
 
-    db = dbclass(name, host, port, user, passwd, root, root_passwd)
-    
+# Parse RST Files for XML
+def parse_rst(path):
+    """ Parses reStructuredText file and returns pseudo-XML string"""
 
 
+    with open(path, "r") as f:
+        text = f.read()
+
+    # Configure Parser
+    rstparser = docutils.parsers.rst.Parser()
+    overrides = {'input_encoding': 'utf8',
+            'output_encoding': 'utf8'}
+
+    # Loop over Directives and roles, adding them to parser
+    directive_manifest = [
+        ('metadata', MetadataDirective),
+        ('include', IncludeDirective)
+    ]
+    for (name, base) in directive_manifest:
+        directives.register_directive(name, base)
+
+    roles_manifest = []
+    #for (name, base) in roles_manifest:
+    #    roles.regiter_local_role(name, base)
+
+
+    # Parse Text
+    xml = docutils.core.publish_doctree(text, 
+            parser = rstparser,
+            settings_overrides=overrides)
+
+    return xml 
